@@ -46,7 +46,7 @@ Any anchor links with `rel="facebox"` with now automatically use facebox:
 
 ### Positioning the facebox
 
-The facebox will default to appearing in the middle of the user's current screen view.  This can be customized with `positionFn` option:
+The facebox will default to appearing in the middle of the user's current screen view.  This can be customized with the `positionFn` option:
 
     jQuery(document).ready(function($) {
       $('a[rel*=facebox]').facebox({
@@ -100,6 +100,16 @@ This will set the top-left of the facebox to be anchored to the top-right of the
                                                 -                     -
                                                 -                     -
                                                 -----------------------
+
+So back to our positioning example:
+
+    jQuery(document).ready(function($) {
+      $('a[rel*=facebox]').facebox({
+        positionFn: function(){ $('#my-nav-bar').facebox('anchor'); }
+      });
+    });
+
+For an even more relevant example go to the section on Events.
 
 ### Using facebox programmatically
 
