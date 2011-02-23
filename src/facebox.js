@@ -2,6 +2,7 @@
  * Facebox (for jQuery)
  * version: 1.3
  * @requires jQuery v1.2 or later
+ *
  * @homepage https://github.com/defunkt/facebox
  *
  * Licensed under the MIT:
@@ -54,15 +55,31 @@
  *
  *  Facebox also has a bunch of other hooks:
  *
- *    loading.facebox
- *    beforeReveal.facebox
- *    reveal.facebox (aliased as 'afterReveal.facebox')
+ *    *beforeLoading.facebox
+ *    *loading.facebox (aliased as 'afterLoading.facebox')
+ *    *beforeReveal.facebox
+ *    *reveal.facebox (aliased as 'afterReveal.facebox')
  *    init.facebox
  *    afterClose.facebox
  *
  *  Simply bind a function to any of these hooks:
  *
  *   $(document).bind('reveal.facebox', function() { ...stuff to do after the facebox and contents are revealed... })
+ *
+ *  * Indicates a hook that can be bound to the root document, or to an individual element, for example:
+ *    $('a.some_clicky_link').bind('beforeLoading', function(){
+ *      $.facebox.settings.positionFn = function(){
+ *        $(this).facebox('anchor', {vertical: 'bottom', :horizontal: 'right'}, {vertical: 'top', :horizontal: 'right'});
+ *      };
+ *    });
+ *
+ *   This will cause the top-right of the facebox to be anchored to the bottom-right of the element when it is displayed,
+ *   You may need to reset the positionFn later... the following would work  (false will cause the facebox to be positioned
+ *   in the center of the page instead of anchored to another element):
+ *
+ *  $(document).bind('afterReveal', function(){
+ *    $.facebox.settings.positionFn = false;
+ *  });
  *
  */
 (function($) {
@@ -82,6 +99,7 @@
 
   $.extend($.facebox, {
     settings: {
+      positionFn   : false,
       opacity      : 0.2,
       overlay      : true,
       loadingImage : '/facebox/loading.gif',
@@ -97,7 +115,10 @@
     </div>'
     },
 
-    loading: function() {
+    loading: function(obj) {
+      $(document).trigger('beforeLoading.facebox')
+      // Maybe we want to bind the event based on the clicked element instead...
+      if(obj) $(obj).trigger('beforeLoading.facebox');
       init()
       if ($('#facebox .loading').length == 1) return true
       showOverlay()
@@ -105,26 +126,40 @@
       $('#facebox .content').empty().
         append('<div class="loading"><img src="'+$.facebox.settings.loadingImage+'"/></div>')
 
-      $('#facebox').show().css({
-        top:	getPageScroll()[1] + (getPageHeight() / 10),
-        left:	$(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2)
-      })
+      // Sometimes we don't want it in the middle of the screen!
+      // Users can set anchorFn on a per-element basis within beforeLoading if they so wish
+      if($.facebox.settings.positionFn){
+        $.facebox.settings.positionFn();
+        $('#facebox').show();
+      }else{
+        $('#facebox').show().css({
+          top:	getPageScroll()[1] + (getPageHeight() / 10),
+          left:	$(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2)
+        })
+      }
 
       $(document).bind('keydown.facebox', function(e) {
         if (e.keyCode == 27) $.facebox.close()
         return true
       })
-      $(document).trigger('loading.facebox')
+      $(document).trigger('loading.facebox').trigger('afterLoading.facebox')
+      if(obj) $(obj).trigger('loading.facebox').trigger('afterLoading.facebox')
     },
 
-    reveal: function(data, klass) {
+    reveal: function(data, klass, obj) {
       $(document).trigger('beforeReveal.facebox')
+      if(obj) $(obj).trigger('beforeReveal.facebox')
       if (klass) $('#facebox .content').addClass(klass)
       $('#facebox .content').append(data)
       $('#facebox .loading').remove()
       $('#facebox .popup').children().fadeIn('normal')
-      $('#facebox').css('left', $(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2))
+      if($.facebox.settings.positionFn){
+        $.facebox.settings.positionFn();
+      }else{
+        $('#facebox').css('left', $(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2))
+      }
       $(document).trigger('reveal.facebox').trigger('afterReveal.facebox')
+      if(obj) $(obj).trigger('reveal.facebox').trigger('afterReveal.facebox')
     },
 
     close: function() {
@@ -134,28 +169,85 @@
   })
 
   /*
-   * Public, $.fn methods
+   * Public, $.fn.facebox(method) methods
    */
+  var methods = {
+    init: function(settings){
+      if ($(this).length == 0) return;
 
-  $.fn.facebox = function(settings) {
-    if ($(this).length == 0) return
+      init(settings);
 
-    init(settings)
+      function clickHandler() {
+        // We'd like a handle on who got clicked wouldn't we?
+        $.facebox.loading(this);
 
-    function clickHandler() {
-      $.facebox.loading(true)
+        // support for rel="facebox.inline_popup" syntax, to add a class
+        // also supports deprecated "facebox[.inline_popup]" syntax
+        var klass = this.rel.match(/facebox\[?\.(\w+)\]?/);
+        if (klass) klass = klass[1];
 
-      // support for rel="facebox.inline_popup" syntax, to add a class
-      // also supports deprecated "facebox[.inline_popup]" syntax
-      var klass = this.rel.match(/facebox\[?\.(\w+)\]?/)
-      if (klass) klass = klass[1]
+        fillFaceboxFromHref(this.href, klass, this);
+        return false;
+      }
+      return this.bind('click.facebox', clickHandler);
+    },
 
-      fillFaceboxFromHref(this.href, klass)
-      return false
+    anchor: function(elementAnchorPoint, faceboxAnchorPoint){
+      fb = $("#facebox");
+      eAnchors = {
+        vertical: 'bottom',
+        horizontal: 'left'
+      };
+
+      fAnchors = {
+        vertical: 'top',
+        horizontal: 'left'
+      };
+
+      if(elementAnchorPoint){
+        $.extend(eAnchors, elementAnchorPoint);
+      }
+      if(faceboxAnchorPoint){
+        $.extend(fAnchors, faceboxAnchorPoint);
+      }
+
+      if(eAnchors.vertical == 'top'){
+        vAnchor = this.offset().top;
+      }else{
+        vAnchor = this.offset().top + this.height();
+      }
+
+      if(eAnchors.horizontal == 'left'){
+        hAnchor = this.offset().left;
+      }else{
+        hAnchor = this.offset().left + this.width();
+      }
+
+      if(fAnchors.vertical == 'bottom'){
+        vAnchor = vAnchor - fb.height();
+      }
+
+      if(fAnchors.horizontal == 'right'){
+        hAnchor = hAnchor - fb.width();
+      }
+
+      fb.css('left', hAnchor);
+      fb.css('top', vAnchor);
     }
+  };
 
-    return this.bind('click.facebox', clickHandler)
-  }
+  // Call init function like normal: $('my-element').facebox({settings});
+  // Call other functions too:  $('my-element').facebox('anchor');
+  $.fn.facebox = function(method) {
+    // Method calling logic
+    if ( methods[method] ) {
+      return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+    } else if ( typeof method === 'object' || ! method ) {
+      return methods.init.apply( this, arguments );
+    } else {
+      $.error( 'Method ' +  method + ' does not exist on jQuery.tooltip' );
+    }
+  };
 
   /*
    * Private methods
@@ -171,7 +263,6 @@
 
     var imageTypes = $.facebox.settings.imageTypes.join('|')
     $.facebox.settings.imageTypesRegexp = new RegExp('\.(' + imageTypes + ')$', 'i')
-
     if (settings) $.extend($.facebox.settings, settings)
     $('body').append($.facebox.settings.faceboxHtml)
 
@@ -184,11 +275,8 @@
       preload.slice(-1).src = $(this).css('background-image').replace(/url\((.+)\)/, '$1')
     })
 
-    $('#facebox .close')
-      .click($.facebox.close)
-      .append('<img src="'
-              + $.facebox.settings.closeImage
-              + '" class="close_image" title="close">')
+    $('#facebox .close').click($.facebox.close)
+    $('#facebox .close_image').attr('src', $.facebox.settings.closeImage)
   }
 
   // getPageScroll() by quirksmode.com
@@ -235,33 +323,33 @@
   //     div: #id
   //   image: blah.extension
   //    ajax: anything else
-  function fillFaceboxFromHref(href, klass) {
+  function fillFaceboxFromHref(href, klass, obj) {
     // div
     if (href.match(/#/)) {
       var url    = window.location.href.split('#')[0]
       var target = href.replace(url,'')
       if (target == '#') return
-      $.facebox.reveal($(target).html(), klass)
+      $.facebox.reveal($(target).html(), klass, obj)
 
     // image
     } else if (href.match($.facebox.settings.imageTypesRegexp)) {
-      fillFaceboxFromImage(href, klass)
+      fillFaceboxFromImage(href, klass, obj)
     // ajax
     } else {
-      fillFaceboxFromAjax(href, klass)
+      fillFaceboxFromAjax(href, klass, obj)
     }
   }
 
-  function fillFaceboxFromImage(href, klass) {
+  function fillFaceboxFromImage(href, klass, obj) {
     var image = new Image()
     image.onload = function() {
-      $.facebox.reveal('<div class="image"><img src="' + image.src + '" /></div>', klass)
+      $.facebox.reveal('<div class="image"><img src="' + image.src + '" /></div>', klass, obj)
     }
     image.src = href
   }
 
-  function fillFaceboxFromAjax(href, klass) {
-    $.get(href, function(data) { $.facebox.reveal(data, klass) })
+  function fillFaceboxFromAjax(href, klass, obj) {
+    $.get(href, function(data) { $.facebox.reveal(data, klass, obj) })
   }
 
   function skipOverlay() {
