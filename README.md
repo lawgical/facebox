@@ -153,7 +153,7 @@ Simply bind a function to any of these hooks:
 
     $(document).bind('reveal.facebox', function() { ...stuff to do after the facebox and contents are revealed... })
 
- * Indicates a hook that can be bound to the root document, or to an individual element, for example:
+\* Indicates a hook that can be bound to the root document, or to an individual element, for example:
     jQuery(document).ready(function($){
       $('a.some-clicky-link').bind('beforeLoading', function(){
         $.facebox.settings.positionFn = function(){
