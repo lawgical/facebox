@@ -142,10 +142,10 @@ Want to close the facebox?  Trigger the `close.facebox` document event:
 
 Facebox also has a bunch of other hooks:
 
-* `beforeLoading.facebox` *
-* `loading.facebox` * (aliased as `afterLoading.facebox`)
-* `beforeReveal.facebox` *
-* `reveal.facebox` * (aliased as `afterReveal.facebox`)
+* \* `beforeLoading.facebox`
+* \* `loading.facebox` (aliased as `afterLoading.facebox`)
+* \* `beforeReveal.facebox`
+* \* `reveal.facebox` (aliased as `afterReveal.facebox`)
 * `init.facebox`
 * `afterClose.facebox`
 
