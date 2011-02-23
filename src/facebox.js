@@ -214,21 +214,21 @@
       if(eAnchors.vertical == 'top'){
         vAnchor = this.offset().top;
       }else{
-        vAnchor = this.offset().top + this.height();
+        vAnchor = this.offset().top + this.outerHeight();
       }
 
       if(eAnchors.horizontal == 'left'){
         hAnchor = this.offset().left;
       }else{
-        hAnchor = this.offset().left + this.width();
+        hAnchor = this.offset().left + this.outerWidth();
       }
 
       if(fAnchors.vertical == 'bottom'){
-        vAnchor = vAnchor - fb.height();
+        vAnchor = vAnchor - fb.outerHeight();
       }
 
       if(fAnchors.horizontal == 'right'){
-        hAnchor = hAnchor - fb.width();
+        hAnchor = hAnchor - fb.outerWidth();
       }
 
       fb.css('left', hAnchor);
