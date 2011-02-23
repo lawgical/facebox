@@ -275,8 +275,11 @@
       preload.slice(-1).src = $(this).css('background-image').replace(/url\((.+)\)/, '$1')
     })
 
-    $('#facebox .close').click($.facebox.close)
-    $('#facebox .close_image').attr('src', $.facebox.settings.closeImage)
+    $('#facebox .close')
+      .click($.facebox.close)
+      .append('<img src="'
+              + $.facebox.settings.closeImage
+              + '" class="close_image" title="close">')
   }
 
   // getPageScroll() by quirksmode.com
