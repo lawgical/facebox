@@ -44,6 +44,62 @@ Any anchor links with `rel="facebox"` with now automatically use facebox:
     <a href="terms.png" rel="facebox">Terms</a>
       Loads the terms.png image in the box
 
+### Positioning the facebox
+
+The facebox will default to appearing in the middle of the user's current screen view.  This can be customized with `positionFn` option:
+
+    jQuery(document).ready(function($) {
+      $('a[rel*=facebox]').facebox({
+        positionFn: function(){
+          $('#facebox').css({
+            top: 200,
+            left: 300
+          })
+        }
+      });
+    });
+
+This example is a little bit clunky.  Enter
+
+### The `anchor` method
+
+You can anchor the facebox to any element using the following format:
+
+    $('#my-nav-bar').facebox('anchor');
+
+This will anchor the facebox to the element with `id='my-nav-bar'`  (if your selector matched multiple elements this will anchor to the first one)
+The default is to anchor the top-left of the facebox to the bottom-left of the element.  This gets you two objects aligned like this:
+
+    ---------------------------------------------
+    -               #my-nav-bar                 -
+    ---------------------------------------------
+    -                    -
+    -                    -
+    -       Facebox      -
+    -                    -
+    -                    -
+    ----------------------
+
+The `anchor` method takes two optional parameters: `elementAnchorPoint` and `faceboxAnchorPoint` that need to include vertical: and horizontal: values...
+
+    $('#my-nav-bar').facebox('anchor',{
+      vertical: 'top',
+      horizontal: 'right'
+    },
+    {
+      vertical: 'top',
+      horizontal: 'left'
+    });
+
+This will set the top-left of the facebox to be anchored to the top-right of the element:
+
+    -------------------------------------------------------------------
+    -               #my-nav-bar                 -                     -
+    ---------------------------------------------                     -
+                                                -       Facebox       -
+                                                -                     -
+                                                -                     -
+                                                -----------------------
 
 ### Using facebox programmatically
 
@@ -76,20 +132,39 @@ Want to close the facebox?  Trigger the `close.facebox` document event:
 
 Facebox also has a bunch of other hooks:
 
-* `loading.facebox`
-* `beforeReveal.facebox`
-* `reveal.facebox` (aliased as `afterReveal.facebox`)
+* `beforeLoading.facebox` *
+* `loading.facebox` * (aliased as `afterLoading.facebox`)
+* `beforeReveal.facebox` *
+* `reveal.facebox` * (aliased as `afterReveal.facebox`)
 * `init.facebox`
+* `afterClose.facebox`
 
 Simply bind a function to any of these hooks:
 
     $(document).bind('reveal.facebox', function() { ...stuff to do after the facebox and contents are revealed... })
 
+ * Indicates a hook that can be bound to the root document, or to an individual element, for example:
+    jQuery(document).ready(function($){
+      $('a.some-clicky-link').bind('beforeLoading', function(){
+        $.facebox.settings.positionFn = function(){
+          $(this).facebox('anchor', {vertical: 'bottom', :horizontal: 'right'}, {vertical: 'top', :horizontal: 'right'});
+        };
+      });
+    });
+
+This will cause the top-right of the facebox to be anchored to the bottom-right of the element when it is displayed,
+You may need to reset the `positionFn` later using the following format  (false will cause the facebox to be positioned
+in the center of the page instead of anchored to another element):
+
+$(document).bind('afterReveal', function(){
+  $.facebox.settings.positionFn = false;
+});
+
 ### Customization
 
-You can give the facebox container an extra class (to fine-tune the display of the facebox) with the facebox[.class] rel syntax.
+You can give the facebox container an extra class (to fine-tune the display of the facebox) with the facebox.class rel syntax.
 
-    <a href="remote.html" rel="facebox[.bolder]">text</a>
+    <a href="remote.html" rel="facebox.bolder">text</a>
 
 ## Contact & Help
 

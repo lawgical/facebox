@@ -192,6 +192,7 @@
       return this.bind('click.facebox', clickHandler);
     },
 
+    // TODO: Add an 'offset' value
     anchor: function(elementAnchorPoint, faceboxAnchorPoint){
       fb = $("#facebox");
       eAnchors = {
