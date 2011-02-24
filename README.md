@@ -166,9 +166,9 @@ This will cause the top-right of the facebox to be anchored to the bottom-right 
 You may need to reset the `positionFn` later using the following format  (false will cause the facebox to be positioned
 in the center of the page instead of anchored to another element):
 
-$(document).bind('afterReveal', function(){
-  $.facebox.settings.positionFn = false;
-});
+    $(document).bind('afterReveal', function(){
+      $.facebox.settings.positionFn = false;
+    });
 
 ### Customization
 
