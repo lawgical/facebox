@@ -106,7 +106,7 @@
       closeImage   : '/facebox/closelabel.png',
       imageTypes   : [ 'png', 'jpg', 'jpeg', 'gif' ],
       faceboxHtml  : '\
-    <div id="facebox" style="display:none;"> \
+    <div id="facebox" class="hidden"> \
       <div class="popup"> \
         <div class="content"> \
         </div> \
@@ -130,9 +130,9 @@
       // Users can set anchorFn on a per-element basis within beforeLoading if they so wish
       if($.facebox.settings.positionFn){
         $.facebox.settings.positionFn();
-        $('#facebox').show();
+        $('#facebox').removeClass('hidden')
       }else{
-        $('#facebox').show().css({
+        $('#facebox').removeClass('hidden').css({
           top:	getPageScroll()[1] + (getPageHeight() / 10),
           left:	$(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2)
         })
@@ -394,6 +394,7 @@
     $('#facebox').fadeOut(function() {
       $('#facebox .content').removeClass().addClass('content')
       $('#facebox .loading').remove()
+      $('#facebox').addClass('hidden').css('display', '')
       $(document).trigger('afterClose.facebox')
     })
     hideOverlay()

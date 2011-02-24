@@ -6,6 +6,9 @@
   text-align: left;
 }
 
+.hidden{
+  display: none;
+}
 
 #facebox .popup{
   position:relative;
