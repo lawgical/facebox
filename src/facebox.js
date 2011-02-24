@@ -189,7 +189,7 @@
         fillFaceboxFromHref(this.href, klass, this);
         return false;
       }
-      return this.bind('click.facebox', clickHandler);
+      return this.live('click.facebox', clickHandler);
     },
 
     // TODO: Add an 'offset' value
