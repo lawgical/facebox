@@ -353,7 +353,16 @@
   }
 
   function fillFaceboxFromAjax(href, klass, obj) {
-    $.get(href, function(data) { $.facebox.reveal(data, klass, obj) })
+    $.ajax({
+      url: href,
+      success: function(data){
+        $.facebox.reveal(data, klass, obj)
+      },
+      error: function(xhr, status, error){
+        $.facebox.reveal(xhr.responseText, klass, obj)
+      }
+    });
+    //$.get(href, function(data) { $.facebox.reveal(data, klass, obj) })
   }
 
   function skipOverlay() {
