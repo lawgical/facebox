@@ -194,13 +194,13 @@
 
     // TODO: Add an 'offset' value
     anchor: function(elementAnchorPoint, faceboxAnchorPoint){
-      fb = $("#facebox");
-      eAnchors = {
+      var fb = $("#facebox");
+      var eAnchors = {
         vertical: 'bottom',
         horizontal: 'left'
       };
 
-      fAnchors = {
+      var fAnchors = {
         vertical: 'top',
         horizontal: 'left'
       };
