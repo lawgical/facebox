@@ -69,17 +69,17 @@
  *  * Indicates a hook that can be bound to the root document, or to an individual element, for example:
  *    $('a.some_clicky_link').bind('beforeLoading', function(){
  *      $.facebox.settings.positionFn = function(){
- *        $(this).facebox('anchor', {vertical: 'bottom', :horizontal: 'right'}, {vertical: 'top', :horizontal: 'right'});
- *      };
- *    });
+ *        $(this).facebox('anchor', {vertical: 'bottom', :horizontal: 'right'}, {vertical: 'top', :horizontal: 'right'})
+ *      }
+ *    })
  *
  *   This will cause the top-right of the facebox to be anchored to the bottom-right of the element when it is displayed,
  *   You may need to reset the positionFn later... the following would work  (false will cause the facebox to be positioned
  *   in the center of the page instead of anchored to another element):
  *
  *  $(document).bind('afterReveal', function(){
- *    $.facebox.settings.positionFn = false;
- *  });
+ *    $.facebox.settings.positionFn = false
+ *  })
  *
  */
 (function($) {
@@ -118,7 +118,7 @@
     loading: function(obj) {
       $(document).trigger('beforeLoading.facebox')
       // Maybe we want to bind the event based on the clicked element instead...
-      if(obj) $(obj).trigger('beforeLoading.facebox');
+      if(obj) $(obj).trigger('beforeLoading.facebox')
       init()
       if ($('#facebox .loading').length == 1) return true
       showOverlay()
@@ -129,7 +129,7 @@
       // Sometimes we don't want it in the middle of the screen!
       // Users can set anchorFn on a per-element basis within beforeLoading if they so wish
       if($.facebox.settings.positionFn){
-        $.facebox.settings.positionFn();
+        $.facebox.settings.positionFn()
         $('#facebox').removeClass('hidden')
       }else{
         $('#facebox').removeClass('hidden').css({
@@ -154,7 +154,7 @@
       $('#facebox .loading').remove()
       $('#facebox .popup').children().fadeIn('normal')
       if($.facebox.settings.positionFn){
-        $.facebox.settings.positionFn();
+        $.facebox.settings.positionFn()
       }else{
         $('#facebox').css('left', $(window).width() / 2 - ($('#facebox .popup').outerWidth() / 2))
       }
@@ -173,82 +173,82 @@
    */
   var methods = {
     init: function(settings){
-      if ($(this).length == 0) return;
+      if ($(this).length == 0) return
 
-      init(settings);
+      init(settings)
 
       function clickHandler() {
         // We'd like a handle on who got clicked wouldn't we?
-        $.facebox.loading(this);
+        $.facebox.loading(this)
 
         // support for rel="facebox.inline_popup" syntax, to add a class
         // also supports deprecated "facebox[.inline_popup]" syntax
-        var klass = this.rel.match(/facebox\[?\.(\w+)\]?/);
-        if (klass) klass = klass[1];
+        var klass = this.rel.match(/facebox\[?\.(\w+)\]?/)
+        if (klass) klass = klass[1]
 
-        fillFaceboxFromHref(this.href, klass, this);
-        return false;
+        fillFaceboxFromHref(this.href, klass, this)
+        return false
       }
-      return this.live('click.facebox', clickHandler);
+      return this.live('click.facebox', clickHandler)
     },
 
     // TODO: Add an 'offset' value
     anchor: function(elementAnchorPoint, faceboxAnchorPoint){
-      var fb = $("#facebox");
+      var fb = $("#facebox")
       var eAnchors = {
         vertical: 'bottom',
         horizontal: 'left'
-      };
+      }
 
       var fAnchors = {
         vertical: 'top',
         horizontal: 'left'
-      };
+      }
 
       if(elementAnchorPoint){
-        $.extend(eAnchors, elementAnchorPoint);
+        $.extend(eAnchors, elementAnchorPoint)
       }
       if(faceboxAnchorPoint){
-        $.extend(fAnchors, faceboxAnchorPoint);
+        $.extend(fAnchors, faceboxAnchorPoint)
       }
 
       if(eAnchors.vertical == 'top'){
-        vAnchor = this.offset().top;
+        vAnchor = this.offset().top
       }else{
-        vAnchor = this.offset().top + this.outerHeight();
+        vAnchor = this.offset().top + this.outerHeight()
       }
 
       if(eAnchors.horizontal == 'left'){
-        hAnchor = this.offset().left;
+        hAnchor = this.offset().left
       }else{
-        hAnchor = this.offset().left + this.outerWidth();
+        hAnchor = this.offset().left + this.outerWidth()
       }
 
       if(fAnchors.vertical == 'bottom'){
-        vAnchor = vAnchor - fb.outerHeight();
+        vAnchor = vAnchor - fb.outerHeight()
       }
 
       if(fAnchors.horizontal == 'right'){
-        hAnchor = hAnchor - fb.outerWidth();
+        hAnchor = hAnchor - fb.outerWidth()
       }
 
-      fb.css('left', hAnchor);
-      fb.css('top', vAnchor);
+      fb.css('left', hAnchor)
+      fb.css('top', vAnchor)
     }
-  };
+  }
 
-  // Call init function like normal: $('my-element').facebox({settings});
-  // Call other functions too:  $('my-element').facebox('anchor');
+  // Call init function like normal: $('my-element').facebox({settings})
+  // Call other functions too:  $('my-element').facebox('anchor')
   $.fn.facebox = function(method) {
     // Method calling logic
     if ( methods[method] ) {
-      return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+      return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ))
     } else if ( typeof method === 'object' || ! method ) {
-      return methods.init.apply( this, arguments );
+      return methods.init.apply( this, arguments )
     } else {
-      $.error( 'Method ' +  method + ' does not exist on jQuery.facebox' );
+      $.error( 'Method ' +  method + ' does not exist on jQuery.facebox' )
     }
-  };
+  }
 
   /*
    * Private methods
@@ -361,7 +361,7 @@
       error: function(xhr, status, error){
         $.facebox.reveal(xhr.responseText, klass, obj)
       }
-    });
+    })
     //$.get(href, function(data) { $.facebox.reveal(data, klass, obj) })
   }
 
